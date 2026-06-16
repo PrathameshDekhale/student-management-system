@@ -8,6 +8,8 @@ function App() {
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
 
+  const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -23,17 +25,17 @@ function App() {
   const [editingId, setEditingId] = useState(null);
 
   const loadStudents = async () => {
-    try {
-      const res = await axios.get(API);
-      setStudents(res.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const res = await axios.get(
+    `${API}?page=${page}&limit=5`
+  );
+
+  setStudents(res.data.students);
+  setTotalPages(res.data.totalPages);
+};
 
   useEffect(() => {
-    loadStudents();
-  }, []);
+  loadStudents();
+}, [page]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -342,6 +344,29 @@ function App() {
           </tbody>
 
         </table>
+        <div className="d-flex justify-content-center mt-4">
+
+  <button
+    className="btn btn-secondary me-2"
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+  >
+    Previous
+  </button>
+
+  <span className="align-self-center">
+    Page {page} of {totalPages}
+  </span>
+
+  <button
+    className="btn btn-secondary ms-2"
+    disabled={page === totalPages}
+    onClick={() => setPage(page + 1)}
+  >
+    Next
+  </button>
+
+</div>
 
       </div>
     </div>

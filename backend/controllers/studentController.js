@@ -20,15 +20,32 @@ exports.createStudent = async(req, res) => {
 
 exports.getStudents = async(req, res) => {
     try {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 5;
+
+        const skip = (page - 1) * limit;
+
+        const totalRecords = await prisma.student.count();
+
         const students = await prisma.student.findMany({
+            skip,
+            take: limit,
             include: {
                 marks: true
             }
         });
 
-        res.json(students);
+        res.json({
+            students,
+            totalRecords,
+            currentPage: page,
+            totalPages: Math.ceil(totalRecords / limit)
+        });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({
+            error: error.message
+        });
     }
 };
 
